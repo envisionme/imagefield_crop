@@ -1,6 +1,5 @@
 <?php
 
-// $Id$
 
 // remove this for Drupal 7. see http://drupal.org/node/305645
 defined('REQUEST_TIME') or define ('REQUEST_TIME', $_SERVER['REQUEST_TIME']);

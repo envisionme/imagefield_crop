@@ -1,6 +1,5 @@
 <?php
 
-// $Id$
 
 // load imagefield widget, so we can extend it, and not fully replace it
 module_load_include('inc','imagefield', 'imagefield_widget');

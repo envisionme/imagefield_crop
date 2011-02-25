@@ -1,4 +1,3 @@
-/* $Id$ */
 
 Drupal.behaviors.imagefield_crop = function (context) { 
   // wait till 'fadeIn' effect ends (defined in filefield_widget.inc)
