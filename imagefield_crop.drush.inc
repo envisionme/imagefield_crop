@@ -28,14 +28,17 @@ function imagefield_crop_recrop($nid) {
       if ($field['widget']['resolution']) {
         list($scale['width'], $scale['height']) = explode('x', $field['widget']['resolution']);
       }
-      foreach ($node->{$field['field_name']} as $image_field) {
-        if ($image_field['fid']) {
-           // we have an image, recrop it.
-           $file = field_file_load($image_field['fid']);
-           _imagefield_crop_resize(imagefield_crop_file_admin_original_path($file),
-                                   $image_field['data']['crop'],
-                                   $scale,
-                                   $file['filepath']);
+      if (is_array($node->{$field['field_name']})) {
+        foreach ($node->{$field['field_name']} as $image_field) {
+          if ($image_field['fid']) {
+            // we have an image, recrop it.
+            $file = field_file_load($image_field['fid']);
+            drush_print("Recropping " . $file['filepath']);
+            _imagefield_crop_resize(imagefield_crop_file_admin_original_path($file),
+                                    $image_field['data']['crop'],
+                                    $scale,
+                                    $file['filepath']);
+          }
         }
       }
     }
