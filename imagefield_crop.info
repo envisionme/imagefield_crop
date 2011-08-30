@@ -1,4 +1,4 @@
-name= Image crop
+name= Imagefield crop
 description = Add cropping ability to images using javascript
 core = 6.x
 dependencies[] = imagefield
