@@ -8,12 +8,12 @@ module_load_include('inc','imagefield', 'imagefield_widget');
 function imagefield_crop_widget_settings_form($widget) {
   $form = module_invoke('imagefield', 'widget_settings_form', $widget);
   $form['resolution'] = array(
-    '#type' => 'textfield', 
-    '#title' => t('The resolution to crop the image onto'), 
+    '#type' => 'textfield',
+    '#title' => t('The resolution to crop the image onto'),
     '#default_value' => isset($widget['resolution']) ? $widget['resolution'] : '200x150',
-    '#size' => 15, 
-    '#maxlength' => 10, 
-    '#description' => 
+    '#size' => 15,
+    '#maxlength' => 10,
+    '#description' =>
     t('The output resolution of the cropped image, expressed as WIDTHxHEIGHT (e.g. 640x480). Set to 0 not to rescale after cropping. Note: output resolution must be defined in order to present a dynamic preview.'),
     '#element_validate' => array('_imagefield_crop_widget_settings_resolution_validate'),
   );
@@ -40,13 +40,13 @@ function imagefield_crop_widget_settings_form($widget) {
     '#description' => t('The resolution of the area used for the cropping of the image. Image will displayed at this resolution for cropping. Use WIDTHxHEIGHT format, zero values are permitted, e.g. 500x0 will limit crop box to 500 pixels width.'),
     '#element_validate' => array('_imagefield_crop_widget_settings_croparea_validate'),
   );
-  
+
   return $form;
 }
 
 function _imagefield_crop_widget_settings_resolution_validate($element, &$form_state) {
   if ($form_state['values']['resolution'] == 0) {
-    $rw = $rh = 0;    
+    $rw = $rh = 0;
   }
   else {
     list($rw, $rh) = explode('x', $form_state['values']['resolution']);
@@ -69,12 +69,12 @@ function _imagefield_crop_widget_settings_enforce_ratio_validate($element, &$for
 
 function _imagefield_crop_widget_settings_enforce_minimum($element, &$form_state) {
   if ($form_state['values']['resolution'] == 0) {
-    $rw = $rh = 0;    
+    $rw = $rh = 0;
   }
   else {
     list($rw, $rh) = explode('x', $form_state['values']['resolution']);
   }
-  if ($form_state['values']['enforce_minimum'] && 
+  if ($form_state['values']['enforce_minimum'] &&
       (!is_numeric($rw) || intval($rw) != $rw || $rw <= 0 ||
        !is_numeric($rh) || intval($rh) != $rh || $rh <= 0)) {
     form_error($element, t('Target resolution must be defined as WIDTH_HEIGHT if minimum is to be enforced.'));
@@ -153,7 +153,7 @@ function imagefield_crop_widget_process($element, $edit, &$form_state, $form) {
     'changed' => 0,
   );
 
-  if (!empty($file) && 
+  if (!empty($file) &&
       is_file($file['filepath']) &&
       (list($width, $height, $type, $image_attributes) = @getimagesize($file['filepath']))) {
 
@@ -167,12 +167,12 @@ function imagefield_crop_widget_process($element, $edit, &$form_state, $form) {
       }
       // if the enforced ratio is different, force crop
       $defaults['changed'] = ($ratio != $image_ratio);
-      
+
     }
     $defaults['width'] = $width;
     $defaults['height'] = $height;
   }
-  
+
   $crop_display = $file;
   $crop_display['filepath'] = imagefield_crop_file_admin_crop_display_path($file);
   if (!file_exists($crop_display['filepath'])) {
@@ -183,11 +183,11 @@ function imagefield_crop_widget_process($element, $edit, &$form_state, $form) {
     '#type' => 'markup',
     '#value' => theme('imagefield_crop_cropbox', $crop_display, isset($crop_display['alt']) ? $crop_display['alt'] : '', isset($crop_display['title']) ? $crop_display['title'] : '', NULL, FALSE, $element['#id'] .'-cropbox'),
   );
-  
+
   $element['data']['crop'] = array(
     '#weight' => -10,
   );
-  
+
   foreach ($defaults as $name => $default) {
     $element['data']['crop'][$name] = array(
       '#type' => 'hidden',
@@ -196,7 +196,7 @@ function imagefield_crop_widget_process($element, $edit, &$form_state, $form) {
       '#value' => !empty($file['data']['crop'][$name]) ? $file['data']['crop'][$name] : $default,
     );
   }
-  
+
   // show dynamic crop preview
   list($preview, $preview_js) = theme('imagefield_crop_dynamic_preview', $crop_display, $field['widget']['resolution']);
 
@@ -230,10 +230,26 @@ function imagefield_crop_widget_process($element, $edit, &$form_state, $form) {
 }
 
 function imagefield_crop_widget_value($element, $edit = FALSE) {
+
+  // Because the output of this field changes depending on the button clicked,
+  // we need to ask FAPI immediately if the remove button was clicked.
+  // It's not good that we call this private function, but
+  // $form_state['clicked_button'] is only available after this #process
+  // callback is finished.
+  // This is also used in filefield_widget_process().
+  $filefield_remove = array(
+    '#name' => implode('_', $element['#parents']) .'_filefield_remove',
+    '#value' => t('Remove'),
+    '#post' => $element['#post'],
+  );
+  if (_form_button_was_clicked($filefield_remove)) {
+    return;
+  }
+
   if ($edit && isset($edit['data'])) {
     $file = field_file_load($edit['fid']);
     $field = content_fields($element['#field_name'], $element['#type_name']);
-    
+
     $crop = $edit['data']['crop'];
     if ($field['widget']['resolution']) {
       list($scale['width'], $scale['height']) = explode('x', $field['widget']['resolution']);
@@ -274,7 +290,7 @@ function theme_imagefield_crop_dynamic_preview($file, $resolution) {
     return array('<!-- file not found: '. $file['filepath'] .' -->', '');
   }
   list($width, $height) = explode('x', $resolution);
-  
+
   $image_attributes = array();
   if (list($orig_width, $orig_height, $type, $image_attributes) = @getimagesize($file['filepath'])) {
     $alt = isset($file['alt']) ? $file['alt'] : 'jcrop preview';
@@ -292,7 +308,7 @@ function theme_imagefield_crop_dynamic_preview($file, $resolution) {
   }
   return array('<!-- could not get imagesize, possibly corrupt or non image. '. $file['filepath'] .' -->', '');
 
-  
+
 }
 
 function _imagefield_crop_resize($src, $crop = NULL, $scale = NULL, $dst = '') {

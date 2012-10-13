@@ -1,8 +1,17 @@
 
-Drupal.behaviors.imagefield_crop = function (context) { 
-  // wait till 'fadeIn' effect ends (defined in filefield_widget.inc)
+Drupal.behaviors.imagefield_crop = function (context) {
+  // wait till the widget is visible before attaching Jcrop
   var attachJcropContext = function() { attachJcrop(context); };
-  setTimeout(attachJcropContext, 1000);
+  setTimeout(visibleCrop,1000);
+
+  function visibleCrop () {
+    if (!($('.jcrop-preview-wrapper').is(':hidden') || $('.jcrop-preview-wrapper').parents(':hidden').length)) {
+      attachJcropContext();
+    }
+    else {
+      setTimeout(visibleCrop,500);
+    }
+  }
 
   function attachJcrop(context) {
     if (0 === $('.cropbox', context).length) {
@@ -11,7 +20,7 @@ Drupal.behaviors.imagefield_crop = function (context) {
     }
     $('.cropbox', context).each(function() {
       var self = $(this);
-      
+
       // get the id attribute for multiple image support
       var self_id = self.attr('id');
       var id = self_id.substring(0, self_id.indexOf('-cropbox'));
@@ -59,7 +68,7 @@ Drupal.behaviors.imagefield_crop = function (context) {
       });
     });
   }
-  
+
 };
 
 
