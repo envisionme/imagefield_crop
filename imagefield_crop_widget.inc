@@ -121,12 +121,6 @@ function imagefield_crop_widget_process($element, $edit, &$form_state, $form) {
 
   $field = content_fields($element['#field_name'], $element['#type_name']);
 
-  // check remove buttons...
-  $remove_name = $element['#field_name'] .'_'. $element['#delta'] .'_remove_btn';
-  if (isset($form_state['clicked_button']) && $form_state['clicked_button']['#name'] == $remove_name) {
-    return $element;
-  }
-
   if ($field['widget']['resolution']) {
     list($w, $h) = explode('x', $field['widget']['resolution']);
 
@@ -219,13 +213,14 @@ function imagefield_crop_widget_process($element, $edit, &$form_state, $form) {
     drupal_add_js(array('imagefield_crop' => $settings), 'setting');
     $added_js[$element['#id']] = TRUE;
   }
-  $element['preview'] = array(
+
+  if ($element['data']['#access']) {
+    $element['preview'] = array(
       '#type' => 'markup',
       // the jQuery.extend is required for ahah("add another item" button) to work
-      '#value' => $preview . '<script type="text/javascript">jQuery.extend(Drupal.settings.imagefield_crop, '. drupal_to_js($settings) .');</script>',
-
+      '#value' => $preview . '<span id="data-'.$element['#id'].'" style="display:none">'.drupal_to_js($settings) .'</span>',
     );
-
+  }
   return $element;
 }
 

@@ -24,7 +24,9 @@ Drupal.behaviors.imagefield_crop = function (context) {
       // get the id attribute for multiple image support
       var self_id = self.attr('id');
       var id = self_id.substring(0, self_id.indexOf('-cropbox'));
-
+      //get Jcrop settings for this widget
+      selfSettings = $('#data-'+id).text();
+      jQuery.extend(Drupal.settings.imagefield_crop, eval('('+selfSettings+')'));
       // get the name attribute for imagefield name
       var widget = self.parent().parent();
 
