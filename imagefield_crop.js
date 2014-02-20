@@ -70,7 +70,6 @@ Drupal.behaviors.imagefield_crop = function (context) {
       });
     });
   }
-
 };
 
 
